@@ -7,6 +7,7 @@ import ma.enset.activite_pratique_n3.repository.PatientRepository;
 import org.springframework.boot.Banner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,6 +46,7 @@ public class PatientController {
     }
 
     @GetMapping("/admin/delete")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     //Suppression
     public String delete(Long id,@RequestParam (name = "keyword",defaultValue = "") String keyword,@RequestParam (name = "page",defaultValue = "0") int page)
     {
@@ -52,15 +54,11 @@ public class PatientController {
         //la redurection
         return "redirect:/user/index?page="+page+"&keyword="+keyword;
     }
-    @GetMapping("/")
-    //Suppression
-    public String home()
-    {
-        return "redirect:/user/index";
-    }
+
 
 
     @GetMapping("/admin/formPatients")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public  String formPatients(Model model)
     {
         model.addAttribute("patient",new Patient());
@@ -76,6 +74,7 @@ public class PatientController {
 
     }
     @GetMapping("/admin/edit")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     //Suppression
     public String edit(Model model,Long id,@RequestParam (name = "keyword",defaultValue = "") String keyword,@RequestParam (name = "page",defaultValue = "0") int page)
     {
@@ -88,5 +87,10 @@ public class PatientController {
         return "editpatient";
     }
 
-
+    @GetMapping("/")
+    //Suppression
+    public String home()
+    {
+        return "redirect:/user/index";
+    }
 }
