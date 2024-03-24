@@ -16,7 +16,7 @@
         <div class="card">
             <div class="card-header"><h2>List Patients</h2></div>
             <div class="card-body"></div>
-            <form method="get" th:action="@{index}">
+            <form method="get" th:action="@{/user/index}">
                 <label>Keyword :</label>
                 <input  type="text" name="keyword" th:value="${keyword}">
                 <button type="submit" class="btn btn-info">
@@ -37,13 +37,13 @@
                     <td th:text="${p.dateN}"></td>
                     <td th:text="${p.malade}"></td>
                     <td th:text="${p.score}"></td>
-                    <td>
-                        <a onclick="javascript:return confirm('Etes vous sure')" th:href="@{delete(id=${p.id},keyword=${keyword},page=${currentPage})}" class="btn btn-danger">
+                    <td th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                        <a onclick="javascript:return confirm('Etes vous sure')" th:href="@{/admin/delete(id=${p.id},keyword=${keyword},page=${currentPage})}" class="btn btn-danger">
                             <i class="bi bi-trash"></i>
                         </a>
                     </td>
-                    <td>
-                        <a th:href="@{edit(id=${p.id},keyword=${keyword},page=${currentPage})}"  class="btn btn-success">
+                    <td th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                        <a th:href="@{/admin/edit(id=${p.id},keyword=${keyword},page=${currentPage})}"  class="btn btn-success">
                             Edit
                         </a>
                     </td>

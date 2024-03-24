@@ -22,7 +22,7 @@ import java.util.List;
 public class PatientController {
     private PatientRepository patientRepository;
 
-    @GetMapping("/index")
+    @GetMapping("/user/index")
     //public String index(Model model,int page,int size)
      public String index(Model model, @RequestParam (name = "page",defaultValue = "0") int page,
                          @RequestParam (name = "size",defaultValue = "4") int size,
@@ -44,38 +44,38 @@ public class PatientController {
 
     }
 
-    @GetMapping("/delete")
+    @GetMapping("/admin/delete")
     //Suppression
     public String delete(Long id,@RequestParam (name = "keyword",defaultValue = "") String keyword,@RequestParam (name = "page",defaultValue = "0") int page)
     {
         patientRepository.deleteById(id);
         //la redurection
-        return "redirect:/index?page="+page+"&keyword="+keyword;
+        return "redirect:/user/index?page="+page+"&keyword="+keyword;
     }
     @GetMapping("/")
     //Suppression
     public String home()
     {
-        return "redirect:/index";
+        return "redirect:/user/index";
     }
 
 
-    @GetMapping("/formPatients")
+    @GetMapping("/admin/formPatients")
     public  String formPatients(Model model)
     {
         model.addAttribute("patient",new Patient());
         return "formPatients";
     }
     //for adding and updating
-    @PostMapping("/save")
+    @PostMapping("/admin/save")
     public String save(Model model, @Valid  Patient patient, BindingResult bindingResult,@RequestParam (defaultValue = "0") int page,@RequestParam (defaultValue = "") String keyword)
     {
         if (bindingResult.hasErrors()) return "formPatients";
         patientRepository.save(patient);
-        return "redirect:/index?page="+page+"&keyword="+keyword;
+        return "redirect:/user/index?page="+page+"&keyword="+keyword;
 
     }
-    @GetMapping("/edit")
+    @GetMapping("/admin/edit")
     //Suppression
     public String edit(Model model,Long id,@RequestParam (name = "keyword",defaultValue = "") String keyword,@RequestParam (name = "page",defaultValue = "0") int page)
     {
