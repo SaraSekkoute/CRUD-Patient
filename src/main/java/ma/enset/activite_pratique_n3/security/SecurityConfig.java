@@ -13,9 +13,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.authorization.AuthenticatedAuthorizationManager.rememberMe;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -26,18 +29,22 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
     @Autowired
     PatientRepository patientRepository;
+    //Stratégie JBDCAthentification
+      @Bean
+      public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
+
+           return new JdbcUserDetailsManager(dataSource);
+    }
 
 
-
-    @Bean
-
+   //Stratégie InMemory
+   // @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager(PasswordEncoder passwordEncoder){
         String encodedPassword = passwordEncoder.encode("1234");
 
 
         return new InMemoryUserDetailsManager(
 
-                //spring security ne pas utiser un passport encodeur
                // User.withUsername("user1").password("{noop}1234").roles("USER").build(),
                 User.withUsername("user1").password(encodedPassword).roles("USER").build(),
                 User.withUsername("user2").password(encodedPassword).roles("USER").build(),
@@ -47,11 +54,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                //.formLogin(form -> form.loginPage("/login").permitAll())
+                .formLogin(form -> form.loginPage("/login").permitAll())
                 .formLogin(Customizer.withDefaults())
                 //.rememberMe(rememberMe -> rememberMe())
-                // .rememberMe(rememberMe -> rememberMe.key("uniqueAndSecret"))
+                /* .rememberMe(rememberMe -> rememberMe
+                        .key("test") // Définissez une clé unique et forte pour le "remember-me"
+                        .tokenValiditySeconds(24 * 60 * 60) // Définissez la durée de validité des tokens (en secondes)
+                 )*/
+               .rememberMe(rememberMe -> rememberMe())
+        //.rememberMe(rememberMe -> rememberMe.key("uniqueAndSecret"))
                // .logout(logout -> logout.deleteCookies("JSESSIONID"))
+
+                //If we're not allowed to access Boostrapp
                  .authorizeHttpRequests(ar->ar.requestMatchers("/webjars/**","/h2-console/**").permitAll())
               // soit utiliser
               //  .authorizeHttpRequests(ar->ar.requestMatchers("/admin/**").hasRole("ADMIN"))
