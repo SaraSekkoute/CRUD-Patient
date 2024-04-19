@@ -2,6 +2,7 @@ package ma.enset.activite_pratique_n3;
 
 import ma.enset.activite_pratique_n3.entities.Patient;
 import ma.enset.activite_pratique_n3.repository.PatientRepository;
+import ma.enset.activite_pratique_n3.security.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,9 +25,8 @@ public class ActivitePratiqueN3Application {
         SpringApplication.run(ActivitePratiqueN3Application.class, args);
     }
 
-    //  @Override
-
-   // public void run(String... args) throws Exception {
+     //@Override
+    /* public void run(String... args) throws Exception {
         /*Patient p1=new Patient();
         p1.setId(null);
         p1.setNom("aya");
@@ -34,11 +34,11 @@ public class ActivitePratiqueN3Application {
         p1.setMalade(false);
         p1.setScore(120);
 
-        patientRepository.save(p1);*/
+        patientRepository.save(p1);
 
 
-    //}
-@Bean
+    }*/
+//@Bean
 CommandLineRunner start(PatientRepository patientRepository) {
     Patient p1 = new Patient();
     p1.setId(null);
@@ -50,8 +50,8 @@ CommandLineRunner start(PatientRepository patientRepository) {
         patientRepository.save(p1);
     };
 }
-
-@Bean
+//for JDBC AUTHENTIFICATION
+//@Bean
 
 CommandLineRunner commandLineRunner (JdbcUserDetailsManager jdbcUserDetailsManager)
     {
@@ -86,6 +86,31 @@ CommandLineRunner commandLineRunner (JdbcUserDetailsManager jdbcUserDetailsManag
     };
 
     }
+  //  FOR user detailsService Authentication ****************************************************************************************************************************************************************************************
+
+   // @Bean
+
+    CommandLineRunner commandLineRunnerUserDetails (AccountService accountService)
+    {
+        return args->
+        {
+            accountService.addNewRole("USER");
+            accountService.addNewRole("ADMIN");
+            accountService.addNewUser("user1","1234","user1@gmail.com","1234");
+            accountService.addNewUser("user2","1234","user2@gmail.com","1234");
+            accountService.addNewUser("admin","5678","admin@gmail.com","5678");
+
+
+            accountService.addRoleToUser("user1","USER");
+
+            accountService.addRoleToUser("user2","USER");
+
+            accountService.addRoleToUser("admin","ADMIN");
+
+
+        };
+    }
+
     @Bean
     PasswordEncoder passwordEncoder()
     {

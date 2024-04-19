@@ -1,6 +1,8 @@
 package ma.enset.activite_pratique_n3.security;
 
+import lombok.AllArgsConstructor;
 import ma.enset.activite_pratique_n3.repository.PatientRepository;
+import ma.enset.activite_pratique_n3.security.service.UserDetailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -26,11 +29,15 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@AllArgsConstructor
 public class SecurityConfig {
-    @Autowired
+
     PatientRepository patientRepository;
+
+    UserDetailServiceImpl userDetailServiceimpl;
+
     //Stratégie JBDCAthentification
-      @Bean
+     // @Bean
       public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
 
            return new JdbcUserDetailsManager(dataSource);
@@ -54,27 +61,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .formLogin(form -> form.loginPage("/login").permitAll())
-                .formLogin(Customizer.withDefaults())
+
+                .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/",true) .permitAll())
+                //.rememberMe(rememberMe -> rememberMe())
+                //If we're not allowed to access Boostrapp
+                .authorizeHttpRequests(ar->ar.requestMatchers("/webjars/**","/h2-console/**").permitAll())
+                .authorizeHttpRequests(ar->ar.anyRequest().authenticated())
+                .exceptionHandling(ar->ar.accessDeniedPage("/notAuthorized"))
+                .userDetailsService(userDetailServiceimpl)
+                .build();
+               //.formLogin(Customizer.withDefaults())
                 //.rememberMe(rememberMe -> rememberMe())
                 /* .rememberMe(rememberMe -> rememberMe
                         .key("test") // Définissez une clé unique et forte pour le "remember-me"
                         .tokenValiditySeconds(24 * 60 * 60) // Définissez la durée de validité des tokens (en secondes)
                  )*/
-               .rememberMe(rememberMe -> rememberMe())
+
         //.rememberMe(rememberMe -> rememberMe.key("uniqueAndSecret"))
                // .logout(logout -> logout.deleteCookies("JSESSIONID"))
 
-                //If we're not allowed to access Boostrapp
-                 .authorizeHttpRequests(ar->ar.requestMatchers("/webjars/**","/h2-console/**").permitAll())
+
               // soit utiliser
               //  .authorizeHttpRequests(ar->ar.requestMatchers("/admin/**").hasRole("ADMIN"))
               //  .authorizeHttpRequests(ar->ar.requestMatchers("/user/**").hasRole("USER"))
                 // ou annotation @EnableMethodSecurity(prePostEnabled = true) et @PreAuthorize("hasRole('Role_ADMIN')") en cotrolleur
-                .exceptionHandling(ar->ar.accessDeniedPage("/notAuthorized"))
+
                  //interdire Tous les applications()Tous les requetes necessitent une authentification (sauf admin ,user et vous pouvez avoir boostrap et h2 console)
-                .authorizeHttpRequests(ar->ar.anyRequest().authenticated())
-                .build();
+
+                //appel function loadUserByUsername
+
     }
 
 }
